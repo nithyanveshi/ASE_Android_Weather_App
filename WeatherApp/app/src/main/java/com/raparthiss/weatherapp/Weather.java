@@ -1,6 +1,7 @@
 package com.raparthiss.weatherapp;
 
 import android.annotation.TargetApi;
+import android.app.ProgressDialog;
 import android.graphics.drawable.Drawable;
 
 import android.os.Bundle;
@@ -23,6 +24,7 @@ public class Weather extends AppCompatActivity implements CallBackInterface {
     private TextView locationText;
 
     private YahooWeatherService yahoo;
+    private ProgressDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,18 +37,24 @@ public class Weather extends AppCompatActivity implements CallBackInterface {
         locationText = (TextView) findViewById(R.id.locationTextView);
 
         yahoo = new YahooWeatherService(this);
-        yahoo.refresher("Kansas City, MO");
+        dialog = new ProgressDialog(this);
+        dialog.setMessage("Loading...");
+        dialog.show();
+
+        yahoo.refresher("Austin, TX");
     }
 
     //@TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void success(Channel channel) {
+        dialog.hide();
+
         int image = getResources().getIdentifier("drawable/icon_"+channel.getItem().getCondition().getCode(), null, getPackageName());
         @SuppressWarnings("deprecation")
         Drawable icon = getResources().getDrawable(image);
 
         weatherIcon.setImageDrawable(icon);
-        temperatureText.setText(channel.getItem().getCondition().getTemp()+"\u00B0"+channel.getUnits().getTempUnit());
+        temperatureText.setText(channel.getItem().getCondition().getTemp() + "\u00B0" + channel.getUnits().getTempUnit());
         conditionText.setText(channel.getItem().getCondition().getNotes());
         locationText.setText(yahoo.getLocation());
     }
